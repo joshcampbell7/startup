@@ -16,9 +16,9 @@ public class FirestoreService {
     @Autowired
     private Firestore firestore;
 
-    public void addUser() throws ExecutionException, InterruptedException {
+    public void addUser(User user) throws ExecutionException, InterruptedException {
         String uniqueId = UUID.randomUUID().toString();
-        User user = new User(uniqueId, "joshua4@test.com", "joshuaTestUser", "JC", "Campbell", "This is a test password");
+        //User user = new User(uniqueId, "joshua4@test.com", "joshuaTestUser", "JC", "Campbell", "This is a test password");
         CollectionReference usersCollection = firestore.collection("users");
         DocumentReference docRef = usersCollection.document(uniqueId);
         ApiFuture<WriteResult> future = docRef.set(user);
@@ -39,6 +39,19 @@ public class FirestoreService {
             return document.toObject(User.class);
         } else {
             return null;
+        }
+    }
+
+    public Boolean isUsernameTaken(String userName) throws ExecutionException, InterruptedException {
+        CollectionReference usersCollection = firestore.collection("users");
+        ApiFuture<QuerySnapshot> query = usersCollection.whereEqualTo("userName", userName).get();
+        QuerySnapshot querySnapshot = query.get();
+
+        if (!querySnapshot.getDocuments().isEmpty()) {
+            DocumentSnapshot document = querySnapshot.getDocuments().get(0);
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
         }
     }
 
